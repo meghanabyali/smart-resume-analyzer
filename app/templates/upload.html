@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Upload Resume · Smart Resume Analyzer{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 860px;">
+  <h1 class="h2 mb-1">Analyze your resume</h1>
+  <p class="text-secondary-ink mb-4">Upload a text-based PDF or DOCX file (max {{ '%g'|format(max_upload_mb) }} MB) and pick the role you are targeting.</p>
+
+  {% if request.args.get('deleted') %}
+  <div class="alert alert-success" role="status"><i class="bi bi-check-circle me-1"></i>Your resume and its analysis were permanently deleted.</div>
+  {% endif %}
+  <form id="upload-form" class="card-soft p-4 p-lg-5" novalidate>
+    <div id="alert-box" class="alert alert-danger d-none" role="alert" aria-live="assertive"></div>
+
+    <h2 class="section-title"><i class="bi bi-1-circle-fill"></i> Upload resume</h2>
+    <div id="dropzone" class="dropzone mb-3" tabindex="0" role="button" aria-describedby="dz-help"
+         aria-label="Upload resume: drag and drop a file or press Enter to browse">
+      <div class="dz-icon mb-2"><i class="bi bi-cloud-arrow-up"></i></div>
+      <div class="fw-semibold" style="color:var(--navy)">Drag & drop your resume here</div>
+      <div class="small text-muted-ink my-2">or</div>
+      <span class="btn btn-outline-primary btn-sm px-3"><i class="bi bi-folder2-open me-1"></i>Browse files</span>
+      <div id="dz-help" class="small text-muted-ink mt-3">Accepted formats: <strong>PDF</strong>, <strong>DOCX</strong> · Max {{ '%g'|format(max_upload_mb) }} MB · Scanned/image-only PDFs are not supported</div>
+      <input id="file-input" type="file" name="resume" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+    </div>
+    <div id="file-chip" class="file-chip mb-4 d-none">
+      <i id="file-icon" class="bi bi-file-earmark-pdf"></i>
+      <div class="flex-grow-1 overflow-hidden">
+        <div id="file-name" class="fw-semibold text-truncate" style="color:var(--navy)"></div>
+        <div id="file-size" class="small text-muted-ink"></div>
+      </div>
+      <button type="button" id="file-clear" class="btn btn-sm btn-link text-secondary" aria-label="Remove selected file"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <h2 class="section-title mt-4"><i class="bi bi-2-circle-fill"></i> Select target job role</h2>
+    <div class="row g-3 mb-4" role="radiogroup" aria-label="Target job role">
+      {% for rid, r in roles.items() %}
+      <div class="col-sm-6">
+        <label class="role-option d-block h-100">
+          <input type="radio" name="role" value="{{ rid }}" {{ 'checked' if loop.first }}>
+          <div class="role-card">
+            <div class="role-title">{{ r.title }}</div>
+            <div class="role-desc">{{ r.description }}</div>
+          </div>
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="form-text mb-3"><i class="bi bi-shield-lock me-1"></i>Privacy: your resume is stored only to produce this analysis, is reachable only through a private link, can be deleted from the dashboard at any time{% if retention_days %}, and is deleted automatically after {{ retention_days }} day(s){% endif %}. Please avoid uploading documents containing sensitive data such as ID numbers.</div>
+
+    <button id="analyze-btn" type="submit" class="btn btn-brand btn-lg w-100" disabled>
+      <i class="bi bi-stars me-2"></i>Analyze Resume
+    </button>
+
+    <div id="progress-area" class="mt-4 d-none" aria-live="polite">
+      <div class="progress mb-3" role="progressbar" aria-label="Analysis progress" aria-valuemin="0" aria-valuemax="100">
+        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+      </div>
+      <ol class="progress-steps small mb-0 ps-3">
+        <li data-step="upload">Uploading and validating file</li>
+        <li data-step="extract">Extracting text and identifying sections</li>
+        <li data-step="analyze">Scoring, ATS keyword matching and generating feedback</li>
+        <li data-step="done">Opening dashboard</li>
+      </ol>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/upload.js') }}" data-max-mb="{{ max_upload_mb }}" id="upload-script"></script>
+{% endblock %}

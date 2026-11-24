@@ -1,0 +1,161 @@
+/* Smart Resume Analyzer - design tokens and components */
+:root {
+  --navy: #14213d;
+  --navy-2: #22315a;
+  --blue: #3a56d4;
+  --purple: #7048e8;
+  --series-1: #2a78d6;        /* validated data-viz series colour */
+  --track: #e7eaf3;
+  --surface: #ffffff;
+  --surface-2: #f6f7fb;
+  --text: #1b2033;
+  --text-2: #52586e;
+  --muted: #6b7189;
+  --border: #e3e6f0;
+  --good: #1a7f37;
+  --warn: #b35c00;
+  --bad: #c92a2a;
+  --info: #2b6cb0;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(20, 33, 61, .06), 0 4px 16px rgba(20, 33, 61, .06);
+}
+
+html, body { background: var(--surface-2); color: var(--text); }
+body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 15px; }
+h1, h2, h3, h4, h5, .navbar-brand { color: var(--navy); font-weight: 700; letter-spacing: -.01em; }
+a { color: var(--blue); }
+.text-secondary-ink { color: var(--text-2) !important; }
+.text-muted-ink { color: var(--muted) !important; }
+
+/* ---------- navigation ---------- */
+.app-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.app-nav .navbar-brand { display: flex; align-items: center; gap: .5rem; }
+.brand-mark {
+  width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+}
+.app-nav .nav-link { color: var(--text-2); font-weight: 500; }
+.app-nav .nav-link.active, .app-nav .nav-link:hover { color: var(--navy); }
+
+.btn-brand {
+  background: linear-gradient(135deg, var(--blue), var(--purple)); color: #fff; border: 0; font-weight: 600;
+}
+.btn-brand:hover, .btn-brand:focus { color: #fff; filter: brightness(1.08); }
+.btn-brand:disabled { opacity: .6; }
+
+/* ---------- surfaces ---------- */
+.card-soft { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.section-title { font-size: 1.05rem; margin-bottom: .75rem; display: flex; align-items: center; gap: .5rem; }
+.section-title i { color: var(--blue); }
+
+/* ---------- hero ---------- */
+.hero {
+  background: radial-gradient(1200px 400px at 10% -10%, rgba(112, 72, 232, .14), transparent),
+              radial-gradient(900px 400px at 100% 0%, rgba(58, 86, 212, .14), transparent), var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.hero h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.1; }
+.hero .lead { color: var(--text-2); max-width: 640px; }
+.gradient-text { background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.feature-icon {
+  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 1.25rem;
+  background: #eef1fb; color: var(--blue);
+}
+.step-num {
+  width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 700;
+  background: var(--navy); color: #fff; font-size: .85rem; flex-shrink: 0;
+}
+
+/* ---------- upload ---------- */
+.dropzone {
+  border: 2px dashed #b9c2e6; border-radius: var(--radius); background: #f8f9fe; padding: 2.5rem 1rem;
+  text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.dropzone:hover, .dropzone:focus-visible, .dropzone.dragover { border-color: var(--blue); background: #eef1fb; outline: none; }
+.dropzone .dz-icon { font-size: 2.6rem; color: var(--blue); }
+.file-chip { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; border-radius: 12px; background: #eef1fb; }
+.file-chip i { font-size: 1.6rem; color: var(--blue); }
+.role-option { cursor: pointer; }
+.role-option input { position: absolute; opacity: 0; }
+.role-option .role-card {
+  border: 1.5px solid var(--border); border-radius: 12px; padding: .8rem .9rem; height: 100%; transition: all .15s;
+  background: var(--surface);
+}
+.role-option input:checked + .role-card { border-color: var(--blue); background: #eef1fb; box-shadow: 0 0 0 3px rgba(58, 86, 212, .15); }
+.role-option input:focus-visible + .role-card { outline: 2px solid var(--blue); outline-offset: 2px; }
+.role-card .role-title { font-weight: 600; color: var(--navy); }
+.role-card .role-desc { font-size: .8rem; color: var(--muted); }
+.progress-steps li { color: var(--muted); }
+.progress-steps li.active { color: var(--navy); font-weight: 600; }
+.progress-steps li.done { color: var(--good); }
+
+/* ---------- dashboard ---------- */
+.stat-card { padding: 1rem 1.1rem; height: 100%; }
+.stat-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--navy); line-height: 1.15; font-variant-numeric: tabular-nums; }
+.stat-sub { font-size: .82rem; color: var(--text-2); }
+
+.ring { position: relative; width: 168px; height: 168px; margin: 0 auto; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .ring-track { stroke: var(--track); }
+.ring .ring-value { stroke: var(--series-1); stroke-linecap: round; transition: stroke-dashoffset .9s ease; }
+.ring .ring-center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+.ring .ring-num { font-size: 2.4rem; font-weight: 700; color: var(--navy); line-height: 1; font-variant-numeric: tabular-nums; }
+.ring .ring-of { font-size: .8rem; color: var(--muted); }
+
+.category-pill { display: inline-flex; align-items: center; gap: .35rem; font-weight: 600; font-size: .85rem; padding: .3rem .7rem; border-radius: 999px; }
+.cat-excellent { background: #e6f4ea; color: var(--good); }
+.cat-good { background: #e8f0fb; color: var(--info); }
+.cat-needs { background: #fff3e0; color: var(--warn); }
+.cat-significant { background: #fdecec; color: var(--bad); }
+
+.meter { height: 10px; border-radius: 999px; background: var(--track); overflow: hidden; }
+.meter > span { display: block; height: 100%; border-radius: 999px; background: var(--series-1); }
+
+.chart-box { position: relative; height: 290px; }
+.chart-box.short { height: 190px; }
+
+.skill-badge { display: inline-flex; align-items: center; gap: .3rem; border-radius: 999px; padding: .32rem .7rem; font-size: .82rem; font-weight: 500; margin: 0 .35rem .45rem 0; border: 1px solid; }
+.skill-badge.matched { background: #e6f4ea; color: #145c29; border-color: #b7dfc3; }
+.skill-badge.missing { background: #fff; color: #8a2a2a; border-color: #efc1c1; border-style: dashed; }
+.skill-badge.extra { background: #f1f3f9; color: var(--text-2); border-color: var(--border); }
+.skill-badge .core { font-size: .65rem; text-transform: uppercase; letter-spacing: .04em; opacity: .8; }
+
+.priority { display: inline-flex; align-items: center; gap: .3rem; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: .2rem .55rem; border-radius: 6px; }
+.priority-high { background: #fdecec; color: var(--bad); }
+.priority-medium { background: #fff3e0; color: var(--warn); }
+.priority-low { background: #e8f0fb; color: var(--info); }
+.feedback-item { border-left: 4px solid var(--border); padding: .9rem 1rem; border-radius: 0 10px 10px 0; background: var(--surface); }
+.feedback-item.High { border-left-color: var(--bad); }
+.feedback-item.Medium { border-left-color: var(--warn); }
+.feedback-item.Low { border-left-color: var(--info); }
+.feedback-item dt { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+.feedback-item dd { margin-bottom: .4rem; }
+
+.param-row { padding: .7rem 0; border-bottom: 1px solid var(--border); }
+.param-row:last-child { border-bottom: 0; }
+.evidence li { font-size: .85rem; }
+.check-pass { color: var(--good); }
+.check-fail { color: var(--bad); }
+
+.nav-pills .nav-link { color: var(--text-2); font-weight: 500; }
+.nav-pills .nav-link.active { background: var(--navy); }
+
+.footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); background: var(--surface); }
+
+/* ---------- printable report ---------- */
+.report-sheet { max-width: 900px; margin: 0 auto; }
+@media print {
+  .no-print, .app-nav, .footer { display: none !important; }
+  body, html { background: #fff; }
+  .card-soft { box-shadow: none; border-color: #ccc; }
+  .report-sheet { max-width: none; }
+  .feedback-item, .param-row { break-inside: avoid; }
+}
+
+@media (max-width: 575.98px) {
+  .ring { width: 140px; height: 140px; }
+  .ring .ring-num { font-size: 2rem; }
+  .stat-value { font-size: 1.5rem; }
+  .chart-box { height: 260px; }
+}

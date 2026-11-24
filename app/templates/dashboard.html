@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% from "_macros.html" import category_class, category_icon, priority_badge, ring, feedback_card %}
+{% set d = a.details %}
+{% set sk = d.skills %}
+{% block title %}Dashboard · {{ a.target_role_title }} · Smart Resume Analyzer{% endblock %}
+{% block content %}
+<div class="container py-4 py-lg-5">
+
+  <!-- Header -->
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+      <div class="stat-label mb-1">Analysis Dashboard</div>
+      <h1 class="h3 mb-1">{{ d.candidate.name or a.original_filename }}</h1>
+      <div class="text-secondary-ink small">
+        <i class="bi bi-file-earmark-text me-1"></i>{{ a.original_filename }} ·
+        <i class="bi bi-briefcase ms-1 me-1"></i>{{ a.target_role_title }} ·
+        <i class="bi bi-clock ms-1 me-1"></i><span class="js-local-time" data-iso="{{ a.created_at }}">{{ a.created_at[:16]|replace('T', ' ') }} UTC</span>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 no-print">
+      <a class="btn btn-brand" href="{{ url_for('report.download_pdf', token=a.id) }}"><i class="bi bi-file-earmark-arrow-down me-1"></i>Download Report</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('main.report', token=a.id) }}"><i class="bi bi-printer me-1"></i>Printable Report</a>
+      <a class="btn btn-outline-primary" href="{{ url_for('main.upload_page') }}"><i class="bi bi-arrow-repeat me-1"></i>Analyze Another Resume</a>
+      <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="Delete this analysis"><i class="bi bi-trash"></i></button>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg"><div class="card-soft stat-card"><div class="stat-label">Resume score</div><div class="stat-value">{{ a.resume_score }}<small class="fs-6 text-muted-ink">/100</small></div><div class="stat-sub">{{ a.score_category }}</div></div></div>
+    <div class="col-6 col-lg"><div class="card-soft stat-card"><div class="stat-label">Est. ATS score</div><div class="stat-value">{{ a.ats_score }}<small class="fs-6 text-muted-ink">/100</small></div><div class="stat-sub">Estimate, not a vendor score</div></div></div>
+    <div class="col-12 col-sm-4 col-lg"><div class="card-soft stat-card"><div class="stat-label">Target role</div><div class="stat-value fs-5 pt-1">{{ a.target_role_title }}</div><div class="stat-sub">{{ sk.reference_keywords|length }} reference keywords</div></div></div>
+    <div class="col-6 col-sm-4 col-lg"><div class="card-soft stat-card"><div class="stat-label">Matched skills</div><div class="stat-value" style="color:var(--good)">{{ sk.matched|length }}</div><div class="stat-sub">{{ '%g'|format(a.keyword_match_percentage) }}% keyword match</div></div></div>
+    <div class="col-6 col-sm-4 col-lg"><div class="card-soft stat-card"><div class="stat-label">Missing skills</div><div class="stat-value" style="color:var(--bad)">{{ sk.missing|length }}</div><div class="stat-sub">{{ sk.core_missing|length }} core keyword(s)</div></div></div>
+  </div>
+
+  <!-- Scores -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card-soft p-4 h-100">
+        <h2 class="section-title"><i class="bi bi-speedometer2"></i>Resume Score</h2>
+        <div class="row align-items-center g-3">
+          <div class="col-sm-5">{{ ring(a.resume_score, 'Resume score') }}</div>
+          <div class="col-sm-7">
+            <span class="category-pill {{ category_class(a.score_category) }} mb-2"><i class="bi {{ category_icon(a.score_category) }}"></i>{{ a.score_category }}</span>
+            <p class="small text-secondary-ink mb-2">Rule-based score from six parameters. Categories: 85+ Excellent · 70–84 Good · 50–69 Needs Improvement · below 50 Significant Improvement Needed (application-defined).</p>
+            <p class="small mb-0"><strong>{{ d.resume_score.parameters|selectattr('percentage', 'ge', 80)|list|length }}</strong> of 6 parameters are strong (80%+).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card-soft p-4 h-100">
+        <h2 class="section-title"><i class="bi bi-funnel"></i>Estimated ATS Compatibility</h2>
+        <div class="row align-items-center g-3">
+          <div class="col-sm-5">{{ ring(a.ats_score, 'Estimated ATS compatibility score') }}</div>
+          <div class="col-sm-7">
+            {% for c in d.ats.components %}
+            <div class="mb-2">
+              <div class="d-flex justify-content-between small"><span>{{ c.name }} <span class="text-muted-ink">({{ (c.weight * 100)|int }}%)</span></span><strong>{{ c.score }}/100</strong></div>
+              <div class="meter" role="img" aria-label="{{ c.name }} {{ c.score }} out of 100"><span style="width: {{ c.score }}%"></span></div>
+            </div>
+            {% endfor %}
+            <p class="small text-muted-ink mb-0 mt-2"><i class="bi bi-info-circle me-1"></i>{{ d.ats.disclaimer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts + skills -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-7">
+      <div class="card-soft p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="section-title mb-0"><i class="bi bi-bar-chart"></i>Resume Parameter Analysis</h2>
+          <button class="btn btn-sm btn-link no-print" data-bs-toggle="collapse" data-bs-target="#paramTable" aria-expanded="false" aria-controls="paramTable">Table view</button>
+        </div>
+        <p class="small text-muted-ink">Share of each parameter's maximum points that was awarded. Hover a bar for points.</p>
+        <div class="chart-box"><canvas id="paramChart" aria-label="Bar chart of resume parameter scores" role="img"></canvas></div>
+        <div class="collapse mt-3" id="paramTable">
+          <table class="table table-sm small mb-0">
+            <thead><tr><th>Parameter</th><th class="text-end">Points</th><th class="text-end">Max</th><th class="text-end">%</th></tr></thead>
+            <tbody>
+              {% for p in d.resume_score.parameters %}<tr><td>{{ p.label }}</td><td class="text-end">{{ '%g'|format(p.score) }}</td><td class="text-end">{{ p.max_score }}</td><td class="text-end">{{ p.percentage }}%</td></tr>{% endfor %}
+              <tr class="fw-semibold"><td>Total</td><td class="text-end">{{ a.resume_score }}</td><td class="text-end">100</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card-soft p-4 h-100">
+        <h2 class="section-title"><i class="bi bi-diagram-3"></i>Skills Analysis · {{ a.target_role_title }}</h2>
+        <div class="d-flex justify-content-between small mb-1"><span>Role keyword coverage</span><strong>{{ sk.matched|length }}/{{ sk.reference_keywords|length }} ({{ '%g'|format(a.keyword_match_percentage) }}%)</strong></div>
+        <div class="meter mb-3" role="img" aria-label="Keyword coverage {{ a.keyword_match_percentage }} percent"><span style="width: {{ a.keyword_match_percentage }}%"></span></div>
+
+        <div class="stat-label mb-2"><i class="bi bi-check-circle-fill check-pass me-1"></i>Matched skills ({{ sk.matched|length }})</div>
+        <div class="mb-2">
+          {% for kw in sk.matched %}<span class="skill-badge matched"><i class="bi bi-check2" aria-hidden="true"></i>{{ kw }}</span>{% else %}<span class="small text-muted-ink">None of the reference keywords were found.</span>{% endfor %}
+        </div>
+        <div class="stat-label mb-2 mt-2"><i class="bi bi-x-circle-fill check-fail me-1"></i>Missing skills ({{ sk.missing|length }})</div>
+        <div class="mb-2">
+          {% for kw in sk.missing %}<span class="skill-badge missing"><i class="bi bi-plus" aria-hidden="true"></i>{{ kw }}{% if kw in sk.core_missing %} <span class="core">core</span>{% endif %}</span>{% else %}<span class="small text-muted-ink">No reference keywords are missing.</span>{% endfor %}
+        </div>
+        {% if sk.additional_skills %}
+        <div class="stat-label mb-2 mt-2">Other technical skills detected</div>
+        <div>{% for kw in sk.additional_skills %}<span class="skill-badge extra">{{ kw }}</span>{% endfor %}</div>
+        {% endif %}
+        <p class="small text-muted-ink mt-2 mb-0">Missing means "not found in the text" - not that you lack the skill. Only add skills you genuinely have.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommendations -->
+  {% set fb = a.feedback %}
+  <div class="card-soft p-4 mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+      <h2 class="section-title mb-0"><i class="bi bi-lightbulb"></i>Smart Recommendations</h2>
+      {% if fb %}
+      <ul class="nav nav-pills small no-print" id="fb-filter" role="tablist">
+        <li class="nav-item"><button class="nav-link active py-1" data-filter="all">All ({{ fb|length }})</button></li>
+        {% for p in ['High', 'Medium', 'Low'] %}<li class="nav-item"><button class="nav-link py-1" data-filter="{{ p }}">{{ p }} ({{ fb|selectattr('priority', 'eq', p)|list|length }})</button></li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% if fb %}
+    <div class="row g-3" id="fb-list">
+      {% for f in fb %}<div class="col-md-6 fb-col" data-priority="{{ f.priority }}">{{ feedback_card(f) }}</div>{% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-4"><i class="bi bi-trophy fs-1" style="color:var(--good)"></i>
+      <p class="mb-0 mt-2">No improvement rules were triggered for this role - the resume meets every check in this analyzer.</p></div>
+    {% endif %}
+  </div>
+
+  <!-- Detailed breakdown -->
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card-soft p-4 h-100">
+        <h2 class="section-title"><i class="bi bi-list-check"></i>Score Explanation</h2>
+        <div class="accordion accordion-flush" id="paramAccordion">
+          {% for p in d.resume_score.parameters %}
+          <div class="accordion-item">
+            <h3 class="accordion-header">
+              <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#p-{{ p.key }}" aria-expanded="false" aria-controls="p-{{ p.key }}">
+                <span class="flex-grow-1 fw-semibold">{{ p.label }}</span>
+                <span class="me-3 small fw-semibold">{{ '%g'|format(p.score) }} / {{ p.max_score }}</span>
+              </button>
+            </h3>
+            <div id="p-{{ p.key }}" class="accordion-collapse collapse" data-bs-parent="#paramAccordion">
+              <div class="accordion-body px-0 pt-0">
+                <p class="small text-secondary-ink">{{ p.explanation }}</p>
+                <ul class="list-unstyled evidence mb-0">
+                  {% for e in p.evidence %}<li><i class="bi bi-check-circle-fill check-pass me-1"></i>{{ e }}</li>{% endfor %}
+                  {% for m in p.missing %}<li><i class="bi bi-x-circle-fill check-fail me-1"></i>{{ m }}</li>{% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <h3 class="h6 mt-4">ATS component checks</h3>
+        <div class="chart-box short"><canvas id="atsChart" aria-label="Bar chart of ATS component scores" role="img"></canvas></div>
+        <ul class="list-unstyled evidence mt-3 mb-0">
+          {% for c in d.ats.components %}{% for ch in c.checks %}
+          <li><i class="bi {{ 'bi-check-circle-fill check-pass' if ch.passed else 'bi-x-circle-fill check-fail' }} me-1"></i><span class="text-muted-ink">{{ c.name }}:</span> {{ ch.label }}</li>
+          {% endfor %}{% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card-soft p-4 h-100">
+        <h2 class="section-title"><i class="bi bi-person-vcard"></i>Extracted Information</h2>
+        <table class="table table-sm small">
+          <tbody>
+            {% for label, val in [('Name', d.candidate.name), ('Email', d.candidate.email), ('Phone', d.candidate.phone), ('LinkedIn', d.candidate.linkedin), ('GitHub', d.candidate.github), ('Portfolio', d.candidate.portfolio)] %}
+            <tr><th class="text-muted-ink fw-semibold" style="width:30%">{{ label }}</th><td class="text-break">{{ val or '-' }}</td></tr>
+            {% endfor %}
+            <tr><th class="text-muted-ink fw-semibold">Document</th><td>{{ d.document.file_type|upper }} · {{ d.document.page_count }} page(s) · {{ d.document.word_count }} words</td></tr>
+          </tbody>
+        </table>
+        <div class="stat-label mb-2">Sections detected</div>
+        <div class="mb-3">{% for s in d.sections_detected %}<span class="skill-badge extra">{{ s|replace('_', ' ')|title }}</span>{% else %}<span class="small text-muted-ink">No standard section headings detected.</span>{% endfor %}</div>
+        <div class="stat-label mb-2">Top NLP keywords <span class="text-lowercase fw-normal">({{ d.nlp.backend }} lemmas + NLTK frequency)</span></div>
+        <div class="mb-3">{% for k in d.nlp.top_keywords %}<span class="skill-badge extra">{{ k.term }} <span class="text-muted-ink">×{{ k.frequency }}</span></span>{% else %}<span class="small text-muted-ink">Not enough repeated terms.</span>{% endfor %}</div>
+        {% if d.nlp.noun_phrases %}
+        <div class="stat-label mb-2">Key phrases (spaCy noun chunks)</div>
+        <div>{% for k in d.nlp.noun_phrases %}<span class="skill-badge extra">{{ k }}</span>{% endfor %}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title h5" id="deleteModalLabel">Delete this analysis?</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body small">This permanently deletes the uploaded resume, its extracted text and all analyses created from it. This cannot be undone.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-delete" data-url="{{ url_for('analysis.delete_analysis', token=a.id) }}" data-home="{{ url_for('main.upload_page') }}">Delete permanently</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="analysis-data">{{ {
+  'parameters': d.resume_score.parameters|map(attribute='label')|list,
+  'keys': d.resume_score.parameters|map(attribute='key')|list,
+  'scores': d.resume_score.parameters|map(attribute='score')|list,
+  'max': d.resume_score.parameters|map(attribute='max_score')|list,
+  'percent': d.resume_score.parameters|map(attribute='percentage')|list,
+  'ats_labels': d.ats.components|map(attribute='name')|list,
+  'ats_scores': d.ats.components|map(attribute='score')|list
+}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

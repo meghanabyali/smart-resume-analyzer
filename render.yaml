@@ -1,0 +1,26 @@
+# Render Blueprint - https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: smart-resume-analyzer
+    runtime: python
+    plan: starter            # a persistent disk requires a paid plan; see docs/deployment.md for the free option
+    buildCommand: pip install -r requirements.txt && python -m nltk.downloader -d data/nltk_data stopwords
+    startCommand: gunicorn run:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:////var/data/resume_analyzer.db
+      - key: UPLOAD_FOLDER
+        value: /var/data/uploads
+      - key: RETENTION_DAYS
+        value: "7"
+      - key: MAX_UPLOAD_MB
+        value: "5"
+    disk:
+      name: resume-data
+      mountPath: /var/data
+      sizeGB: 1

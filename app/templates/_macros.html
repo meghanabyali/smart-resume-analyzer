@@ -1,0 +1,39 @@
+{% macro category_class(cat) -%}
+{{ {'Excellent': 'cat-excellent', 'Good': 'cat-good', 'Needs Improvement': 'cat-needs'}.get(cat, 'cat-significant') }}
+{%- endmacro %}
+
+{% macro category_icon(cat) -%}
+{{ {'Excellent': 'bi-patch-check-fill', 'Good': 'bi-hand-thumbs-up-fill', 'Needs Improvement': 'bi-exclamation-circle-fill'}.get(cat, 'bi-exclamation-triangle-fill') }}
+{%- endmacro %}
+
+{% macro priority_badge(p) -%}
+<span class="priority priority-{{ p|lower }}"><i class="bi {{ {'High': 'bi-exclamation-octagon-fill', 'Medium': 'bi-exclamation-triangle-fill', 'Low': 'bi-info-circle-fill'}[p] }}" aria-hidden="true"></i>{{ p }}</span>
+{%- endmacro %}
+
+{% macro ring(score, label) -%}
+{% set c = 439.82 %}
+<div class="ring" role="img" aria-label="{{ label }}: {{ score }} out of 100">
+  <svg viewBox="0 0 168 168" aria-hidden="true">
+    <circle class="ring-track" cx="84" cy="84" r="70" fill="none" stroke-width="12"></circle>
+    <circle class="ring-value" cx="84" cy="84" r="70" fill="none" stroke-width="12"
+            stroke-dasharray="{{ c }}" stroke-dashoffset="{{ c * (1 - score / 100) }}"></circle>
+  </svg>
+  <div class="ring-center"><div><div class="ring-num">{{ score }}</div><div class="ring-of">out of 100</div></div></div>
+</div>
+{%- endmacro %}
+
+{% macro feedback_card(f) -%}
+<div class="feedback-item {{ f.priority }} card-soft" data-priority="{{ f.priority }}">
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+    {{ priority_badge(f.priority) }}
+    <span class="small text-muted-ink">{{ f.category }}</span>
+  </div>
+  <h3 class="h6 mb-2">{{ f.title }}</h3>
+  <dl class="mb-0 small">
+    <dt>Problem identified</dt><dd>{{ f.issue }}</dd>
+    <dt>Evidence from your resume</dt><dd>{{ f.evidence }}</dd>
+    <dt>Recommended improvement</dt><dd>{{ f.recommendation }}</dd>
+    <dt>Why it matters</dt><dd class="mb-0 text-secondary-ink">{{ f.explanation }}</dd>
+  </dl>
+</div>
+{%- endmacro %}

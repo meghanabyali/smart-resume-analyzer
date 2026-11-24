@@ -1,0 +1,10 @@
+SAMPLE JOB DESCRIPTION (self-written for this project - not copied from a real posting)
+Role: Graduate Cloud Engineer
+
+Responsibilities:
+- Deploy and operate workloads on AWS, Azure or Google Cloud
+- Containerize applications with Docker and orchestrate them with Kubernetes
+- Automate infrastructure with Terraform and build CI/CD pipelines
+- Administer Linux servers, manage IAM policies and configure networking
+- Set up monitoring and alerting
+Requirements: cloud computing fundamentals, Linux, scripting, an entry-level cloud certification is a plus.

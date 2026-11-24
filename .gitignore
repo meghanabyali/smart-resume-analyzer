@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Secrets & local data - resumes contain personal information
+.env
+instance/
+uploads/
+*.db
+
+# NLTK data is downloaded at build time
+data/nltk_data/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

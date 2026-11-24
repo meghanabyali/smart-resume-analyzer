@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}About · Smart Resume Analyzer{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 980px;">
+  <h1 class="h2 mb-2">About the project</h1>
+  <p class="text-secondary-ink mb-4">Smart Resume Analyzer with AI-Based Feedback is an Artificial Intelligence capstone project that
+    demonstrates how rule-based AI and basic Natural Language Processing are used in recruitment and HR-technology platforms.</p>
+
+  <div class="card-soft p-4 mb-4">
+    <h2 class="h5">Problem statement</h2>
+    <p class="small mb-2">Many students create resumes without understanding:</p>
+    <ul class="small mb-0">
+      <li>ATS (Applicant Tracking System) requirements</li><li>Industry-relevant technical skills</li>
+      <li>Resume formatting standards</li><li>Keyword optimization</li><li>Role-specific expectations</li>
+    </ul>
+  </div>
+
+  <div class="card-soft p-4 mb-4">
+    <h2 class="h5">Objectives</h2>
+    <ol class="small mb-0">
+      <li>Upload resumes in PDF or DOCX format</li><li>Extract and process resume content</li><li>Generate resume scores</li>
+      <li>Check ATS compatibility</li><li>Analyze role-based skills</li><li>Receive smart improvement suggestions</li>
+      <li>View analysis results on a dashboard</li>
+    </ol>
+  </div>
+
+  <h2 class="h5 mb-3">The five modules</h2>
+  <div class="row g-3 mb-4">
+    {% set modules = [
+      ('1', 'Resume Upload & Parsing', 'File validation (type, content signature, size), PyMuPDF/python-docx text extraction, section detection, regex + spaCy NER information extraction, database storage.'),
+      ('2', 'Resume Score Analyzer', 'Six independent rule-based scoring functions (structure 20, skills 20, education 15, projects 15, contact 15, completeness 15) - each returns score, evidence, gaps and an explanation.'),
+      ('3', 'ATS Keyword Checker', 'Role dictionaries for Data Analyst, Web Developer, AI Engineer and Cloud Engineer; alias-aware, boundary-safe phrase matching; estimated ATS score = 60% keyword coverage + 20% parseability + 20% structure.'),
+      ('4', 'Smart Feedback System', 'Rule-based recommendation engine: each rule fires only on a detected issue, carries evidence, is prioritised High/Medium/Low, de-duplicated and phrased conditionally.'),
+      ('5', 'Dashboard & Report', 'Bootstrap + Chart.js dashboard rendered from stored results, a printable report page and a ReportLab PDF download.'),
+    ] %}
+    {% for n, t, txt in modules %}
+    <div class="col-md-6"><div class="card-soft p-3 h-100"><div class="d-flex gap-2 align-items-start"><span class="step-num">{{ n }}</span><div><h3 class="h6 mb-1">{{ t }}</h3><p class="small text-secondary-ink mb-0">{{ txt }}</p></div></div></div></div>
+    {% endfor %}
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card-soft p-4 h-100">
+        <h2 class="h5">Technologies</h2>
+        <ul class="small mb-0">
+          <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript, Bootstrap 5, Jinja2, Chart.js</li>
+          <li><strong>Backend:</strong> Python 3.11, Flask, Flask-SQLAlchemy</li>
+          <li><strong>AI/NLP:</strong> spaCy (tokenisation, lemmatisation, NER, noun chunks), NLTK (stopwords, tokenizer, frequency distributions, n-grams), regular expressions</li>
+          <li><strong>Documents:</strong> PyMuPDF, python-docx, ReportLab</li>
+          <li><strong>Database:</strong> SQLite (MySQL/PostgreSQL-ready via SQLAlchemy)</li>
+          <li><strong>Testing / Deployment:</strong> pytest, Gunicorn, Render</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card-soft p-4 h-100">
+        <h2 class="h5">AI / NLP methods</h2>
+        <ul class="small mb-0">
+          <li>Text normalisation (Unicode, ligatures, bullets, whitespace)</li>
+          <li>Rule-based section-heading classification with synonym lists</li>
+          <li>Regex extraction of email, phone, URLs, degrees, years, grades, metrics</li>
+          <li>spaCy named-entity recognition for the candidate name</li>
+          <li>Keyword extraction with stopword removal, lemmatisation and frequency analysis</li>
+          <li>Alias and context-aware skill matching (e.g. "ML" counts only near ML context)</li>
+          <li>Weighted, explainable scoring and decision rules for recommendations</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-soft p-4">
+    <h2 class="h5">Scope limitations</h2>
+    <p class="small">As required by the specification, this prototype deliberately does <strong>not</strong> include deep-learning models,
+      LLM training, complex recommendation engines, enterprise authentication or large-scale cloud architecture. Scores are transparent
+      estimates; they are not produced by any commercial ATS. OCR for scanned resumes is not supported.</p>
+    <p class="small mb-0">Supported roles: {% for rid, r in roles.items() %}{{ r.title }}{{ ', ' if not loop.last }}{% endfor %}.</p>
+  </div>
+</div>
+{% endblock %}

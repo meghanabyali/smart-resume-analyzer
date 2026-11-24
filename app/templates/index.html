@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Smart Resume Analyzer · AI-Based Resume Feedback{% endblock %}
+{% block content %}
+<section class="hero py-5">
+  <div class="container py-lg-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <span class="badge rounded-pill text-bg-light border mb-3"><i class="bi bi-cpu me-1"></i>Rule-based AI + NLP</span>
+        <h1 class="mb-3">Make your resume <span class="gradient-text">ATS-ready</span> with explainable AI feedback</h1>
+        <p class="lead mb-4">Upload a PDF or DOCX resume, choose a target role, and get a resume score out of 100,
+          an estimated ATS compatibility score, a skill-gap analysis and prioritised suggestions. Every
+          score comes with the evidence behind it.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{{ url_for('main.upload_page') }}" class="btn btn-brand btn-lg px-4"><i class="bi bi-upload me-2"></i>Upload Resume</a>
+          <a href="{{ url_for('main.about') }}" class="btn btn-outline-secondary btn-lg px-4">How it works</a>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card-soft p-4">
+          <div class="stat-label mb-3">Supported target roles</div>
+          <ul class="list-unstyled mb-0">
+            {% for rid, r in roles.items() %}
+            <li class="d-flex gap-3 mb-3">
+              <span class="feature-icon flex-shrink-0"><i class="bi {{ {'data_analyst':'bi-bar-chart-line','web_developer':'bi-code-slash','ai_engineer':'bi-robot','cloud_engineer':'bi-cloud'}[rid] }}"></i></span>
+              <div><div class="fw-semibold" style="color:var(--navy)">{{ r.title }}</div>
+                <div class="small text-muted-ink">{{ r.keywords|length }} reference keywords · {{ r.keywords[:4]|join(', ') }}…</div></div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container py-5">
+  <h2 class="h3 mb-4 text-center">What the analyzer does</h2>
+  <div class="row g-4">
+    {% set features = [
+      ('bi-file-earmark-arrow-up', 'Resume Upload & Parsing', 'Extracts text from PDF (PyMuPDF) and DOCX (python-docx), then identifies sections, contact details, education and projects.'),
+      ('bi-speedometer2', 'Resume Score /100', 'Six rule-based parameters: structure, skills, education, projects, contact information and completeness.'),
+      ('bi-search', 'ATS Keyword Checker', 'Phrase-aware keyword matching with aliases (JS → JavaScript, GCP → Google Cloud) against role dictionaries.'),
+      ('bi-lightbulb', 'Smart Feedback', 'Prioritised, evidence-backed suggestions: formatting, projects, certifications, internships and keywords.'),
+      ('bi-graph-up', 'Dashboard & Report', 'Interactive charts of every score plus a downloadable PDF report generated from your stored analysis.'),
+      ('bi-shield-check', 'Privacy by Design', 'Unguessable links, one-click deletion and automatic purging of stored resumes.'),
+    ] %}
+    {% for icon, title, text in features %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card-soft p-4 h-100">
+        <span class="feature-icon mb-3"><i class="bi {{ icon }}"></i></span>
+        <h3 class="h6">{{ title }}</h3>
+        <p class="small text-secondary-ink mb-0">{{ text }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container pb-4">
+  <div class="card-soft p-4 p-lg-5">
+    <h2 class="h4 mb-4">How it works</h2>
+    <div class="row g-4">
+      {% set steps = ['Upload your PDF/DOCX resume', 'Text is extracted and cleaned', 'Sections and details are identified with NLP',
+                      'Resume score is calculated', 'ATS keyword matching for your role', 'Personalised suggestions are generated',
+                      'Dashboard and PDF report display the results'] %}
+      {% for s in steps %}
+      <div class="col-sm-6 col-lg-3 d-flex gap-2 align-items-start">
+        <span class="step-num">{{ loop.index }}</span><span class="small pt-1">{{ s }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

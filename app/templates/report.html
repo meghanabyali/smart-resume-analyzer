@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% from "_macros.html" import category_class, category_icon, priority_badge %}
+{% set d = a.details %}
+{% set sk = d.skills %}
+{% block title %}Analysis Report · {{ a.original_filename }}{% endblock %}
+{% block content %}
+<div class="container py-4 report-sheet">
+  <div class="d-flex flex-wrap justify-content-between gap-2 mb-3 no-print">
+    <a href="{{ url_for('main.dashboard', token=a.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back to dashboard</a>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-primary js-print"><i class="bi bi-printer me-1"></i>Print</button>
+      <a class="btn btn-sm btn-brand" href="{{ url_for('report.download_pdf', token=a.id) }}"><i class="bi bi-file-earmark-pdf me-1"></i>Download PDF</a>
+    </div>
+  </div>
+
+  <div class="card-soft p-4 p-lg-5">
+    <div class="text-center mb-4">
+      <h1 class="h3 mb-1">Resume Analysis Report</h1>
+      <div class="small text-muted-ink">Smart Resume Analyzer with AI-Based Feedback</div>
+    </div>
+
+    <table class="table table-sm small mb-4">
+      <tbody>
+        <tr><th style="width:30%">File</th><td>{{ a.original_filename }}</td></tr>
+        <tr><th>Candidate</th><td>{{ d.candidate.name or 'Not identified' }}</td></tr>
+        <tr><th>Target job role</th><td>{{ a.target_role_title }}</td></tr>
+        <tr><th>Analysis date</th><td>{{ a.created_at[:10] }}</td></tr>
+      </tbody>
+    </table>
+
+    <div class="row g-3 text-center mb-4">
+      <div class="col-4"><div class="border rounded-3 p-3"><div class="stat-value">{{ a.resume_score }}/100</div><div class="small text-muted-ink">Resume score</div>
+        <span class="category-pill {{ category_class(a.score_category) }} mt-1"><i class="bi {{ category_icon(a.score_category) }}"></i>{{ a.score_category }}</span></div></div>
+      <div class="col-4"><div class="border rounded-3 p-3 h-100"><div class="stat-value">{{ a.ats_score }}/100</div><div class="small text-muted-ink">Estimated ATS compatibility</div></div></div>
+      <div class="col-4"><div class="border rounded-3 p-3 h-100"><div class="stat-value">{{ '%g'|format(a.keyword_match_percentage) }}%</div><div class="small text-muted-ink">Role keyword match</div></div></div>
+    </div>
+
+    <h2 class="h5">1. Parameter-wise score breakdown</h2>
+    <div class="table-responsive mb-4">
+      <table class="table table-sm small align-top">
+        <thead class="table-light"><tr><th>Parameter</th><th class="text-nowrap">Score</th><th>Evidence found</th><th>Gaps</th></tr></thead>
+        <tbody>
+          {% for p in d.resume_score.parameters %}
+          <tr><td class="fw-semibold">{{ p.label }}</td><td class="text-nowrap">{{ '%g'|format(p.score) }} / {{ p.max_score }}</td>
+            <td>{{ p.evidence|join('; ') or '-' }}</td><td>{{ p.missing|join('; ') or '-' }}</td></tr>
+          {% endfor %}
+          <tr class="fw-semibold"><td>Total</td><td>{{ a.resume_score }} / 100</td><td colspan="2"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="h5">2. Estimated ATS compatibility</h2>
+    <table class="table table-sm small mb-1">
+      <thead class="table-light"><tr><th>Component</th><th>Weight</th><th>Score</th><th>Weighted</th></tr></thead>
+      <tbody>
+        {% for c in d.ats.components %}<tr><td>{{ c.name }}</td><td>{{ (c.weight * 100)|int }}%</td><td>{{ c.score }}/100</td><td>{{ '%g'|format(c.weighted) }}</td></tr>{% endfor %}
+        <tr class="fw-semibold"><td>Estimated ATS score</td><td>100%</td><td></td><td>{{ a.ats_score }}</td></tr>
+      </tbody>
+    </table>
+    <p class="small text-muted-ink mb-4">{{ d.ats.disclaimer }}</p>
+
+    <h2 class="h5">3. Skill analysis - {{ a.target_role_title }}</h2>
+    <p class="small mb-1"><strong>Matched ({{ sk.matched|length }}):</strong> {{ sk.matched|join(', ') or 'none' }}</p>
+    <p class="small mb-1"><strong>Missing ({{ sk.missing|length }}):</strong> {{ sk.missing|join(', ') or 'none' }}</p>
+    <p class="small mb-4"><strong>Other technical skills:</strong> {{ sk.additional_skills|join(', ') or 'none' }}</p>
+
+    <h2 class="h5">4. Improvement suggestions</h2>
+    {% for f in a.feedback %}
+    <div class="feedback-item {{ f.priority }} border mb-2 small">
+      <div class="mb-1">{{ priority_badge(f.priority) }} <strong class="ms-1">{{ f.title }}</strong> <span class="text-muted-ink">· {{ f.category }}</span></div>
+      <div><strong>Issue:</strong> {{ f.issue }}</div>
+      <div><strong>Evidence:</strong> {{ f.evidence }}</div>
+      <div><strong>Recommendation:</strong> {{ f.recommendation }}</div>
+      <div class="text-secondary-ink"><em>{{ f.explanation }}</em></div>
+    </div>
+    {% else %}
+    <p class="small">No improvement rules were triggered.</p>
+    {% endfor %}
+
+    <h2 class="h5 mt-4">5. Scoring methodology & disclaimer</h2>
+    <p class="small text-secondary-ink mb-0">Resume score = structure (20) + skills (20) + education (15) + projects (15) + contact (15) + completeness (15),
+      computed by transparent rules. Score categories are defined by this application, not by an industry standard.
+      ATS score = {{ d.ats.formula }}. {{ d.ats.disclaimer }} Role keyword lists are editable starter references, not definitive hiring requirements.
+      NLP backend: {{ d.nlp.backend }}.</p>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/report.js') }}"></script>
+{% endblock %}

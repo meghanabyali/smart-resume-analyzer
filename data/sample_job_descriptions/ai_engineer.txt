@@ -1,0 +1,10 @@
+SAMPLE JOB DESCRIPTION (self-written for this project - not copied from a real posting)
+Role: Associate AI Engineer
+
+Responsibilities:
+- Develop machine learning models in Python using Scikit-learn, TensorFlow or PyTorch
+- Perform data preprocessing and feature engineering
+- Apply model evaluation techniques (cross-validation, precision/recall, F1-score)
+- Build NLP and deep learning prototypes
+- Integrate models into applications through APIs (API integration)
+Requirements: strong Python, understanding of artificial intelligence and ML fundamentals, project portfolio.

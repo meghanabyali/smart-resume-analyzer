@@ -1,0 +1,9 @@
+SAMPLE JOB DESCRIPTION (self-written for this project - not copied from a real posting)
+Role: Junior Web Developer
+
+Responsibilities:
+- Build responsive user interfaces with HTML, CSS, JavaScript and React
+- Develop and consume REST APIs using Node.js
+- Use Git for version control and collaborate through pull requests
+- Work with SQL databases and style components with Bootstrap
+Requirements: frontend development fundamentals, basic backend development, a portfolio or GitHub profile.

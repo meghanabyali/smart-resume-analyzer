@@ -1,0 +1,11 @@
+SAMPLE JOB DESCRIPTION (self-written for this project - not copied from a real posting)
+Role: Junior Data Analyst
+
+We are looking for a Junior Data Analyst to turn data into insights for our business teams.
+Responsibilities:
+- Write SQL queries to extract and aggregate data from relational databases
+- Clean and prepare datasets using Python (Pandas, NumPy) and Excel
+- Build dashboards and reports in Power BI or Tableau
+- Apply basic statistics to identify trends and test hypotheses
+- Maintain ETL processes and contribute to data modeling
+Requirements: degree in a quantitative field; SQL; Excel; Python; data visualization; good communication.
